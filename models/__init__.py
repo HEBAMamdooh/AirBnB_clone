@@ -3,7 +3,8 @@
 Module containing the init for the models package
 """
 
-from models.engine.file_storage import storage
+def some_function():
+    from models.engine import file_storage
 
 # Create a variable storage, an instance of FileStorage
 # Call reload() method on this variable
