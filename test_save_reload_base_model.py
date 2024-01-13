@@ -3,8 +3,8 @@
 Unittest for saving and reloading instances using BaseModel class
 """
 
-from models import storage
 from models.base_model import BaseModel
+from models import storage
 import os
 
 if os.path.exists("file.json"):
