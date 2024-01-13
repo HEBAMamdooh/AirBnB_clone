@@ -1,22 +1,47 @@
 #!/usr/bin/python3
 """
-Module for the command interpreter
+Command interpreter module.
 """
 import cmd
-from models import storage
 from models.base_model import BaseModel
 from models.user import User
+from models.state import State
+from models.city import City
+from models.amenity import Amenity
+from models.place import Place
+from models import storage
+from shlex import split
+from datetime import datetime
 
 
 class HBNBCommand(cmd.Cmd):
     """
-    Console class for handling the command line interpreter
+    HBNBCommand class for the command interpreter.
     """
-    prompt = '(hbnb) '
+    prompt = "(hbnb) "
+
+    def emptyline(self):
+        """
+        Do nothing on empty input line.
+        """
+        pass
+
+    def do_quit(self, arg):
+        """ 
+        Quit command to exit the program.
+        """
+        return True
+
+    def do_EOF(self, arg):
+        """
+        EOF command to exit the program.
+        """
+        print()
+        return True
 
     def do_create(self, arg):
         """
-        Creates a new instance of BaseModel, saves it, and prints the id
+        Create a new instance of BaseModel, saves it to JSON file, and prints the id.
         """
         if not arg:
             print("** class name missing **")
@@ -25,117 +50,94 @@ class HBNBCommand(cmd.Cmd):
             new_instance = eval(arg)()
             new_instance.save()
             print(new_instance.id)
-        except NameError:
+        except:
             print("** class doesn't exist **")
 
     def do_show(self, arg):
         """
-        Prints the string representation of an instance
-        based on the class name and id
+        Prints the string representation of an instance based on class name and id.
         """
         if not arg:
             print("** class name missing **")
             return
         args = arg.split()
-        if args[0] not in ["BaseModel", "User"]:
+        if args[0] not in globals():
             print("** class doesn't exist **")
             return
-        if len(args) < 2:
+        if len(args) == 1:
             print("** instance id missing **")
             return
-        key = "{}.{}".format(args[0], args[1])
-        objects = storage.all()
-        if key in objects:
-            print(objects[key])
+        key = args[0] + "." + args[1]
+        all_objs = storage.all()
+        if key in all_objs:
+            print(all_objs[key])
         else:
             print("** no instance found **")
 
     def do_destroy(self, arg):
         """
-        Deletes an instance based on the class name and id
+        Deletes an instance based on class name and id (save the change into the JSON file).
         """
         if not arg:
             print("** class name missing **")
             return
         args = arg.split()
-        if args[0] not in ["BaseModel", "User"]:
+        if args[0] not in globals():
             print("** class doesn't exist **")
             return
-        if len(args) < 2:
+        if len(args) == 1:
             print("** instance id missing **")
             return
-        key = "{}.{}".format(args[0], args[1])
-        objects = storage.all()
-        if key in objects:
-            del objects[key]
+        key = args[0] + "." + args[1]
+        all_objs = storage.all()
+        if key in all_objs:
+            del all_objs[key]
             storage.save()
         else:
             print("** no instance found **")
 
     def do_all(self, arg):
         """
-        Prints all string representations of all instances
-        based or not on the class name
+        Prints all string representations of all instances based or not on the class name.
         """
-        args = arg.split()
-        objects = storage.all()
+        all_objs = storage.all()
         if not arg:
-            print([str(obj) for obj in objects.values()])
-            return
-        if args[0] not in ["BaseModel", "User"]:
-            print("** class doesn't exist **")
-            return
-        print([str(obj)
-              for key, obj in objects.items() if key.startswith(args[0])])
+            print([str(all_objs[obj]) for obj in all_objs])
+        else:
+            args = arg.split()
+            if args[0] not in globals():
+                print("** class doesn't exist **")
+            else:
+                print([str(all_objs[obj])
+                      for obj in all_objs if args[0] in obj])
 
     def do_update(self, arg):
         """
-        Updates an instance based on the class name and id
-        by adding or updating attribute
+        Updates an instance based on the class name and id by adding or updating attribute.
         """
         if not arg:
             print("** class name missing **")
             return
         args = arg.split()
-        if args[0] not in ["BaseModel", "User"]:
+        if args[0] not in globals():
             print("** class doesn't exist **")
             return
-        if len(args) < 2:
+        if len(args) == 1:
             print("** instance id missing **")
             return
-        key = "{}.{}".format(args[0], args[1])
-        objects = storage.all()
-        if key not in objects:
+        key = args[0] + "." + args[1]
+        all_objs = storage.all()
+        if key not in all_objs:
             print("** no instance found **")
             return
-        if len(args) < 3:
+        if len(args) == 2:
             print("** attribute name missing **")
             return
-        if len(args) < 4:
+        if len(args) == 3:
             print("** value missing **")
             return
-        instance = objects[key]
-        setattr(instance, args[2], args[3])
+        setattr(all_objs[key], args[2], eval(args[3]))
         storage.save()
-
-    def do_quit(self, arg):
-        """
-        Quit command to exit the console
-        """
-        return True
-
-    def do_EOF(self, arg):
-        """
-        Handles the end of file event (Ctrl+D)
-        """
-        print("")
-        return True
-
-    def emptyline(self):
-        """
-        Called when an empty line is entered in response to the prompt.
-        """
-        pass
 
 
 if __name__ == '__main__':

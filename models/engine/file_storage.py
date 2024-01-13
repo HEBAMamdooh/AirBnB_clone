@@ -5,7 +5,7 @@ Module containing the FileStorage class
 
 import json
 from os.path import exists
-from models.base_model import BaseModel
+from models.base_model import BaseModel, User, State, City, Amenity, Place, Review
 
 
 class FileStorage:
@@ -19,22 +19,22 @@ class FileStorage:
         """
         Returns the dictionary __objects
         """
-        return self.__objects
+        return FileStorage.__objects
 
     def new(self, obj):
         """
         Sets in __objects the obj with key <obj class name>.id
         """
-        key = "{}.{}".format(obj.__class__.__name__, obj.id)
-        self.__objects[key] = obj
+        key = obj.__class__.__name__ + "." + obj.id
+        FileStorage.__objects[key] = obj
 
     def save(self):
         """
         Serializes __objects to the JSON file (path: __file_path)
         """
-        json_dict = {key: obj.to_dict() for key, obj in self.__objects.items()}
-        with open(self.__file_path, 'w', encoding='utf-8') as file:
-            json.dump(json_dict, file)
+        new_dict = {}
+        for key, value in FileStorage.__objects.items():
+            new_dict[key] = value.to
 
     def to_dict(self):
         """Serializes __objects to the JSON file (path: __file_path)"""
@@ -47,17 +47,16 @@ class FileStorage:
         """
         Deserializes the JSON file to __objects (only if the JSON file (__file_path) exists)
         """
-        if exists(self.__file_path):
-            with open(self.__file_path, 'r', encoding='utf-8') as file:
-                json_dict = json.load(file)
-                for key, obj_dict in json_dict.items():
-                    cls_name, obj_id = key.split('.')
-                    if cls_name == 'User':
-                        cls = User  # Assuming User is in the same file or imported
-                    else:
-                        cls = eval(cls_name)
-                    obj = cls(**obj_dict)
-                    self.__objects[key] = obj
+        try:
+            with open(FileStorage.__file_path, mode="r", encoding="utf-8") as f:
+                FileStorage.__objects = json.load(f)
+                for key, value in FileStorage.__objects.items():
+                    cls_name = value["__class__"]
+                    del value["__class__"]
+                    new_instance = eval(cls_name)(**value)
+                    FileStorage.__objects[key] = new_instance
+        except FileNotFoundError:
+            pass
 
 
 # Create a unique FileStorage instance for the application
