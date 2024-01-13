@@ -5,6 +5,7 @@ Module containing the BaseModel class
 
 import uuid
 from datetime import datetime
+from models import storage
 
 
 class BaseModel:
@@ -26,6 +27,11 @@ class BaseModel:
                 elif key != "__class__":
                     setattr(self, key, value)
 
+        # If it’s a new instance (not from a dictionary representation),
+        # add a call to the method new(self) on storage
+        if not kwargs:
+            storage.new(self)
+
     def __str__(self):
         """
         Returns the string representation of the BaseModel instance
@@ -39,6 +45,8 @@ class BaseModel:
         Updates the public instance attribute updated_at with the current datetime
         """
         self.updated_at = datetime.now()
+        # Call save(self) method of storage
+        storage.save()
 
     def to_dict(self):
         """
