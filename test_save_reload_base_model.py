@@ -3,7 +3,7 @@
 Unittest for saving and reloading instances using BaseModel class
 """
 
-from models import storage
+from models.engine.file_storage import storage
 from models.base_model import BaseModel
 import os
 
