@@ -1,5 +1,8 @@
 #!/usr/bin/python3
-"""Command interpreter for the AirBnB console."""
+"""
+Command interpreter for the AirBnB console.
+"""
+
 import cmd
 import json
 import shlex
@@ -11,27 +14,6 @@ class HBNBCommand(cmd.Cmd):
     """Command interpreter class."""
 
     prompt = "(hbnb) "
-
-    def do_quit(self, arg):
-        """Quit command to exit the program."""
-        return True
-
-    def do_EOF(self, arg):
-        """EOF command to exit the program."""
-        print()
-        return True
-
-    def emptyline(self):
-        """Do nothing on empty input line."""
-        pass
-
-    def help_quit(self):
-        """Print help for quit command."""
-        print("Quit command to exit the program")
-
-    def help_EOF(self):
-        """Print help for EOF command."""
-        print("EOF command to exit the program")
 
     def do_create(self, arg):
         """Create a new instance of BaseModel, save it, and print the id."""
@@ -113,6 +95,27 @@ class HBNBCommand(cmd.Cmd):
                 attr_value = args[3]
                 setattr(instance, attr_name, eval(attr_value))
                 instance.save()
+
+    def do_quit(self, arg):
+        """Quit command to exit the program."""
+        return True
+
+    def do_EOF(self, arg):
+        """EOF command to exit the program."""
+        print()
+        return True
+
+    def emptyline(self):
+        """Do nothing on empty input line."""
+        pass
+
+    def help_quit(self):
+        """Print help for quit command."""
+        print("Quit command to exit the program")
+
+    def help_EOF(self):
+        """Print help for EOF command."""
+        print("EOF command to exit the program")
 
 
 if __name__ == '__main__':
