@@ -1,24 +1,17 @@
 #!/usr/bin/python3
-"""Command interpreter module"""
+"""
+Command interpreter module
+"""
+
 import cmd
 from models.base_model import BaseModel
+from models.user import User
 from models.state import State
 from models.city import City
 from models.amenity import Amenity
 from models.place import Place
 from models.review import Review
-from models.user import User
-from models.engine.file_storage import FileStorage
-
-classes = {
-    'BaseModel': BaseModel,
-    'State': State,
-    'City': City,
-    'Amenity': Amenity,
-    'Place': Place,
-    'Review': Review,
-    'User': User
-}
+from models import storage
 
 
 class HBNBCommand(cmd.Cmd):
@@ -26,103 +19,108 @@ class HBNBCommand(cmd.Cmd):
 
     prompt = "(hbnb) "
 
+    def do_EOF(self, line):
+        """Exits the program with EOF"""
+        return True
+
     def do_quit(self, line):
         """Quit command to exit the program"""
         return True
 
-    def do_EOF(self, line):
-        """EOF command to exit the program"""
-        return True
-
     def emptyline(self):
-        """Empty line handling"""
+        """Handles empty lines"""
         pass
 
-    def do_create(self, arg):
-        """Creates a new instance of BaseModel, saves it to JSON, and prints the id"""
-        if not arg:
+    def do_create(self, line):
+        """Create a new instance of BaseModel"""
+        args = line.split()
+        if len(args) == 0:
             print("** class name missing **")
-        elif arg not in classes:
-            print("** class doesn't exist **")
         else:
-            new_instance = classes[arg]()
-            new_instance.save()
-            print(new_instance.id)
+            try:
+                new_instance = eval(args[0])()
+                new_instance.save()
+                print(new_instance.id)
+            except Exception as e:
+                print(f"** {e.__class__.__name__}: {str(e)} **")
 
-    def do_show(self, arg):
-        """Prints the string representation of an instance based on the class name and id"""
-        args = arg.split()
-        if not args:
+    def do_show(self, line):
+        """Prints the string representation of an instance"""
+        args = line.split()
+        if len(args) == 0:
             print("** class name missing **")
-        elif args[0] not in classes:
-            print("** class doesn't exist **")
         elif len(args) == 1:
             print("** instance id missing **")
         else:
-            key = "{}.{}".format(args[0], args[1])
-            if key in FileStorage._FileStorage__objects:
-                print(FileStorage._FileStorage__objects[key])
-            else:
-                print("** no instance found **")
+            try:
+                obj_key = args[0] + "." + args[1]
+                obj = storage.all().get(obj_key)
+                if obj is not None:
+                    print(obj)
+                else:
+                    print(f"** no instance found **")
+            except Exception as e:
+                print(f"** {e.__class__.__name__}: {str(e)} **")
 
-    def do_destroy(self, arg):
-        """Deletes an instance based on the class name and id, and saves the changes to JSON"""
-        args = arg.split()
-        if not args:
+    def do_destroy(self, line):
+        """Deletes an instance based on the class name and id"""
+        args = line.split()
+        if len(args) == 0:
             print("** class name missing **")
-        elif args[0] not in classes:
-            print("** class doesn't exist **")
         elif len(args) == 1:
             print("** instance id missing **")
         else:
-            key = "{}.{}".format(args[0], args[1])
-            if key in FileStorage._FileStorage__objects:
-                del FileStorage._FileStorage__objects[key]
-                FileStorage.save(FileStorage)
-            else:
-                print("** no instance found **")
+            try:
+                obj_key = args[0] + "." + args[1]
+                obj = storage.all().get(obj_key)
+                if obj is not None:
+                    del storage.all()[obj_key]
+                    storage.save()
+                else:
+                    print(f"** no instance found **")
+            except Exception as e:
+                print(f"** {e.__class__.__name__}: {str(e)} **")
 
-    def do_all(self, arg):
-        """Prints all string representations of all instances based on the class name"""
-        args = arg.split()
-        objects_list = []
-        if not args:
-            for key, value in FileStorage._FileStorage__objects.items():
-                objects_list.append(str(value))
-            print(objects_list)
-        elif args[0] not in classes:
+    def do_all(self, line):
+        """Prints all string representations of all instances"""
+        args = line.split()
+        obj_list = []
+        if len(args) == 0:
+            for obj in storage.all().values():
+                obj_list.append(str(obj))
+            print(obj_list)
+        elif args[0] not in globals():
             print("** class doesn't exist **")
         else:
-            for key, value in FileStorage._FileStorage__objects.items():
-                if key.startswith(args[0]):
-                    objects_list.append(str(value))
-            print(objects_list)
+            for key, obj in storage.all().items():
+                if args[0] in key:
+                    obj_list.append(str(obj))
+            print(obj_list)
 
-    def do_update(self, arg):
-        """Updates an instance based on the class name and id and saves the changes to JSON"""
-        args = arg.split()
-        if not args:
+    def do_update(self, line):
+        """Updates an instance based on the class name and id"""
+        args = line.split()
+        if len(args) == 0:
             print("** class name missing **")
-        elif args[0] not in classes:
-            print("** class doesn't exist **")
         elif len(args) == 1:
             print("** instance id missing **")
         elif len(args) == 2:
-            key = "{}.{}".format(args[0], args[1])
-            if key not in FileStorage._FileStorage__objects:
-                print("** no instance found **")
-            else:
-                print("** attribute name missing **")
+            print("** attribute name missing **")
         elif len(args) == 3:
             print("** value missing **")
         else:
-            key = "{}.{}".format(args[0], args[1])
-            if key not in FileStorage._FileStorage__objects:
-                print("** no instance found **")
-            else:
-                obj = FileStorage._FileStorage__objects[key]
-                setattr(obj, args[2], args[3])
-                FileStorage.save(FileStorage)
+            try:
+                obj_key = args[0] + "." + args[1]
+                obj = storage.all().get(obj_key)
+                if obj is not None:
+                    attr_name = args[2]
+                    attr_value = args[3]
+                    setattr(obj, attr_name, attr_value)
+                    storage.save()
+                else:
+                    print(f"** no instance found **")
+            except Exception as e:
+                print(f"** {e.__class__.__name__}: {str(e)} **")
 
 
 if __name__ == "__main__":
