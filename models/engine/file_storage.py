@@ -31,10 +31,14 @@ class FileStorage:
         with open(FileStorage.__file_path, mode="w", encoding="utf-8") as f:
             json.dump(serialized_objects, f)
 
-    def reload(self):
-        """Deserializes the JSON file to __objects"""
-        try:
-            with open(FileStorage.__file_path, mode="r", encoding="utf-8") as f:
-                loaded_objects = json.load(f)
-            for key, value in loaded_objects.items():
-                
+def reload(self):
+    """Deserializes the JSON file to __objects"""
+    try:
+        with open(FileStorage.__file_path, mode="r", encoding="utf-8") as f:
+            loaded_objects = json.load(f)
+        for key, value in loaded_objects.items():
+            class_name = key.split('.')[0]
+            obj = eval(class_name)(**value)
+            FileStorage.__objects[key] = obj
+    except FileNotFoundError:
+        pass
