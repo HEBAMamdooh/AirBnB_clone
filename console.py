@@ -112,13 +112,44 @@ class HBNBCommand(cmd.Cmd):
                     print("** value missing **")
                 else:
                     setattr(obj, args_list[2], eval(args_list[3]))
-                    storage.save()
+                    obj.save()
 
     def do_count(self, args):
         """Count the number of instances of a class"""
         count = sum(1 for obj in storage.all().values()
                     if args == obj.__class__.__name__)
         print(count)
+
+    def do_update_dict(self, args):
+        """Update an instance based on the class name and id with a dictionary"""
+        if not args:
+            print("** class name missing **")
+        else:
+            args_list = args.split()
+            if len(args_list) == 0:
+                print("** class name missing **")
+            elif len(args_list) == 1:
+                print("** instance id missing **")
+            else:
+                key = args_list[0] + "." + args_list[1]
+                try:
+                    obj = storage.all()[key]
+                except KeyError:
+                    print("** no instance found **")
+                    return
+
+                if len(args_list) == 2:
+                    print("** dictionary missing **")
+                elif len(args_list) == 3:
+                    print("** dictionary missing **")
+                else:
+                    try:
+                        attr_dict = eval(args_list[3])
+                        for k, v in attr_dict.items():
+                            setattr(obj, k, v)
+                        obj.save()
+                    except (SyntaxError, NameError):
+                        print("** invalid dictionary **")
 
     def default(self, line):
         """Called on an input line when the command prefix is not recognized"""
@@ -150,6 +181,42 @@ class HBNBCommand(cmd.Cmd):
                     print("** no instance found **")
                 except IndexError:
                     print("** instance id missing **")
+            elif command == "update(" and line.endswith(")"):
+                try:
+                    args = line.split("(")[1].split(")")[0]
+                    args_list = args.split(", ")
+                    instance_id = args_list[0]
+                    attr_name = args_list[1]
+                    attr_value = args_list[2]
+                    instance_key = "{}.{}".format(class_name, instance_id)
+                    instance = storage.all().get(instance_key)
+                    if instance:
+                        setattr(instance, attr_name, eval(attr_value))
+                        instance.save()
+                    else:
+                        print("** no instance found **")
+                except (KeyError, IndexError, ValueError):
+                    print("** invalid input **")
+            elif command == "update_dict(" and line.endswith(")"):
+                try:
+                    args = line.split("(")[1].split(")")[0]
+                    args_list = args.split(", ")
+                    instance_id = args_list[0]
+                    attr_dict = args_list[1]
+                    instance_key = "{}.{}".format(class_name, instance_id)
+                    instance = storage.all().get(instance_key)
+                    if instance:
+                        try:
+                            attr_dict = eval(attr_dict)
+                            for k, v in attr_dict.items():
+                                setattr(instance, k, v)
+                            instance.save()
+                        except (SyntaxError, NameError):
+                            print("** invalid dictionary **")
+                    else:
+                        print("** no instance found **")
+                except (KeyError, IndexError, ValueError):
+                    print("** invalid input **")
             else:
                 print("** Unknown syntax: {}".format(line))
         else:
