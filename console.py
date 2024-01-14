@@ -1,121 +1,128 @@
 #!/usr/bin/python3
-"""
-Command interpreter for the AirBnB console.
-"""
-
+"""Command interpreter module"""
 import cmd
-import json
-import shlex
-from models import storage
 from models.base_model import BaseModel
+from models.state import State
+from models.city import City
+from models.amenity import Amenity
+from models.place import Place
+from models.review import Review
+from models.user import User
+from models.engine.file_storage import FileStorage
+
+classes = {
+    'BaseModel': BaseModel,
+    'State': State,
+    'City': City,
+    'Amenity': Amenity,
+    'Place': Place,
+    'Review': Review,
+    'User': User
+}
 
 
 class HBNBCommand(cmd.Cmd):
-    """Command interpreter class."""
+    """Command interpreter class"""
 
     prompt = "(hbnb) "
 
+    def do_quit(self, line):
+        """Quit command to exit the program"""
+        return True
+
+    def do_EOF(self, line):
+        """EOF command to exit the program"""
+        return True
+
+    def emptyline(self):
+        """Empty line handling"""
+        pass
+
     def do_create(self, arg):
-        """Create a new instance of BaseModel, save it, and print the id."""
-        args = shlex.split(arg)
-        if len(args) == 0:
+        """Creates a new instance of BaseModel, saves it to JSON, and prints the id"""
+        if not arg:
             print("** class name missing **")
-        elif args[0] not in storage.classes:
+        elif arg not in classes:
             print("** class doesn't exist **")
         else:
-            new_instance = storage.classes[args[0]]()
+            new_instance = classes[arg]()
             new_instance.save()
             print(new_instance.id)
 
     def do_show(self, arg):
-        """Prints the string representation of an instance."""
-        args = shlex.split(arg)
-        if len(args) == 0:
+        """Prints the string representation of an instance based on the class name and id"""
+        args = arg.split()
+        if not args:
             print("** class name missing **")
-        elif args[0] not in storage.classes:
+        elif args[0] not in classes:
             print("** class doesn't exist **")
         elif len(args) == 1:
             print("** instance id missing **")
         else:
-            obj_key = "{}.{}".format(args[0], args[1])
-            objects = storage.all()
-            if obj_key not in objects:
-                print("** no instance found **")
+            key = "{}.{}".format(args[0], args[1])
+            if key in FileStorage._FileStorage__objects:
+                print(FileStorage._FileStorage__objects[key])
             else:
-                print(objects[obj_key])
+                print("** no instance found **")
 
     def do_destroy(self, arg):
-        """Deletes an instance based on the class name and id."""
-        args = shlex.split(arg)
-        if len(args) == 0:
+        """Deletes an instance based on the class name and id, and saves the changes to JSON"""
+        args = arg.split()
+        if not args:
             print("** class name missing **")
-        elif args[0] not in storage.classes:
+        elif args[0] not in classes:
             print("** class doesn't exist **")
         elif len(args) == 1:
             print("** instance id missing **")
         else:
-            obj_key = "{}.{}".format(args[0], args[1])
-            objects = storage.all()
-            if obj_key not in objects:
-                print("** no instance found **")
+            key = "{}.{}".format(args[0], args[1])
+            if key in FileStorage._FileStorage__objects:
+                del FileStorage._FileStorage__objects[key]
+                FileStorage.save(FileStorage)
             else:
-                del objects[obj_key]
-                storage.save()
+                print("** no instance found **")
 
     def do_all(self, arg):
-        """Prints all string representation of all instances."""
-        args = shlex.split(arg)
-        objects = storage.all()
-        if len(args) == 0:
-            print([str(objects[obj]) for obj in objects])
-        elif args[0] not in storage.classes:
+        """Prints all string representations of all instances based on the class name"""
+        args = arg.split()
+        objects_list = []
+        if not args:
+            for key, value in FileStorage._FileStorage__objects.items():
+                objects_list.append(str(value))
+            print(objects_list)
+        elif args[0] not in classes:
             print("** class doesn't exist **")
+        else:
+            for key, value in FileStorage._FileStorage__objects.items():
+                if key.startswith(args[0]):
+                    objects_list.append(str(value))
+            print(objects_list)
 
     def do_update(self, arg):
-        """Updates an instance based on the class name and id."""
-        args = shlex.split(arg)
-        if len(args) == 0:
+        """Updates an instance based on the class name and id and saves the changes to JSON"""
+        args = arg.split()
+        if not args:
             print("** class name missing **")
-        elif args[0] not in storage.classes:
+        elif args[0] not in classes:
             print("** class doesn't exist **")
         elif len(args) == 1:
             print("** instance id missing **")
-        else:
-            obj_key = "{}.{}".format(args[0], args[1])
-            objects = storage.all()
-            if obj_key not in objects:
+        elif len(args) == 2:
+            key = "{}.{}".format(args[0], args[1])
+            if key not in FileStorage._FileStorage__objects:
                 print("** no instance found **")
-            elif len(args) == 2:
-                print("** attribute name missing **")
-            elif len(args) == 3:
-                print("** value missing **")
             else:
-                instance = objects[obj_key]
-                attr_name = args[2]
-                attr_value = args[3]
-                setattr(instance, attr_name, eval(attr_value))
-                instance.save()
-
-    def do_quit(self, arg):
-        """Quit command to exit the program."""
-        return True
-
-    def do_EOF(self, arg):
-        """EOF command to exit the program."""
-        print()
-        return True
-
-    def emptyline(self):
-        """Do nothing on empty input line."""
-        pass
-
-    def help_quit(self):
-        """Print help for quit command."""
-        print("Quit command to exit the program")
-
-    def help_EOF(self):
-        """Print help for EOF command."""
-        print("EOF command to exit the program")
+                print("** attribute name missing **")
+        elif len(args) == 3:
+            print("** value missing **")
+        else:
+            key = "{}.{}".format(args[0], args[1])
+            if key not in FileStorage._FileStorage__objects:
+                print("** no instance found **")
+            else:
+                obj = FileStorage._FileStorage__objects[key]
+                setattr(obj, args[2], args[3])
+                FileStorage.save(FileStorage)
 
 
 if __name__ == "__main__":
