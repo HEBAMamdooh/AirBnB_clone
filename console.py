@@ -114,6 +114,12 @@ class HBNBCommand(cmd.Cmd):
                     setattr(obj, args_list[2], eval(args_list[3]))
                     storage.save()
 
+    def do_count(self, args):
+        """Count the number of instances of a class"""
+        count = sum(1 for obj in storage.all().values()
+                    if args == obj.__class__.__name__)
+        print(count)
+
     def default(self, line):
         """Called on an input line when the command prefix is not recognized"""
         class_name = line.split(".")[0]
@@ -122,9 +128,28 @@ class HBNBCommand(cmd.Cmd):
             if command == "all()":
                 self.do_all(class_name)
             elif command == "count()":
-                count = sum(1 for obj in storage.all().values()
-                            if class_name == obj.__class__.__name__)
-                print(count)
+                self.do_count(class_name)
+            elif command == "show(" and line.endswith(")"):
+                try:
+                    instance_id = line.split("(")[1].split(")")[0]
+                    instance_key = "{}.{}".format(class_name, instance_id)
+                    instance = storage.all().get(instance_key)
+                    if instance:
+                        print(instance)
+                    else:
+                        print("** no instance found **")
+                except IndexError:
+                    print("** instance id missing **")
+            elif command == "destroy(" and line.endswith(")"):
+                try:
+                    instance_id = line.split("(")[1].split(")")[0]
+                    instance_key = "{}.{}".format(class_name, instance_id)
+                    del storage.all()[instance_key]
+                    storage.save()
+                except KeyError:
+                    print("** no instance found **")
+                except IndexError:
+                    print("** instance id missing **")
             else:
                 print("** Unknown syntax: {}".format(line))
         else:
