@@ -1,8 +1,5 @@
 #!/usr/bin/python3
-"""
-Unit tests for saving and reloading BaseModel instances.
-"""
-
+"""Unit tests for saving and reloading BaseModel instances."""
 import unittest
 from models import storage
 from models.base_model import BaseModel
