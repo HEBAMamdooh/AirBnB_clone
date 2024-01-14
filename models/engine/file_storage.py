@@ -1,43 +1,42 @@
 #!/usr/bin/python3
-"""
-Module for FileStorage class.
+""" 
+Module for FileStorage class. 
 """
 
 import json
-from models.base_model import BaseModel
+import os
+from datetime import datetime
 
 
 class FileStorage:
-    """FileStorage class for serialization and deserialization of instances."""
+    """ FileStorage class """
 
     __file_path = "file.json"
     __objects = {}
 
     def all(self):
-        """Return the dictionary __objects."""
-        return self.__objects
+        """ Returns the dictionary __objects """
+        return FileStorage.__objects
 
     def new(self, obj):
-        """Set in __objects the obj with key <obj class name>.id."""
+        """ sets in __objects the obj with key <obj class name>.id """
         key = "{}.{}".format(obj.__class__.__name__, obj.id)
-        self.__objects[key] = obj
+        FileStorage.__objects[key] = obj
 
     def save(self):
-        """Serialize __objects to the JSON file (__file_path)."""
-        serialized_objects = {}
-        for key, obj in self.__objects.items():
-            serialized_objects[key] = obj.to_dict()
-        with open(self.__file_path, 'w', encoding="utf-8") as file:
-            json.dump(serialized_objects, file)
+        """ serializes __objects to the JSON file """
+        new_dict = {}
+        for key, value in FileStorage.__objects.items():
+            new_dict[key] = value.to_dict()
+        with open(FileStorage.__file_path, mode='w', encoding='utf-8') as f:
+            json.dump(new_dict, f)
 
     def reload(self):
-        """Deserialize the JSON file (__file_path) to __objects."""
-        try:
-            with open(self.__file_path, 'r', encoding="utf-8") as file:
-                loaded_objects = json.load(file)
-                for key, obj_dict in loaded_objects.items():
-                    class_name, obj_id = key.split('.')
-                    obj = eval(class_name)(**obj_dict)
-                    self.__objects[key] = obj
-        except FileNotFoundError:
-            pass
+        """ deserializes the JSON file to __objects """
+        if os.path.exists(FileStorage.__file_path):
+            with open(FileStorage.__file_path, mode='r', encoding='utf-8') as f:
+                content = json.load(f)
+            for key, value in content.items():
+                class_name = value['__class__']
+                new_obj = eval(class_name)(**value)
+                FileStorage.__objects[key] = new_obj
