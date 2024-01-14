@@ -3,7 +3,10 @@
 
 from models.base_model import BaseModel
 
-
 class State(BaseModel):
-    """ State class """
+    """State class"""
     name = ""
+
+    def __init__(self, *args, **kwargs):
+        """Initializes the State instance"""
+        super().__init__(*args, **kwargs)
