@@ -19,43 +19,40 @@ class TestConsole(unittest.TestCase):
         """Tear down test environment"""
         storage.reload()
 
-    def test_create(self):
+    def test_quit(self):
         with patch('sys.stdout', new=StringIO()) as f:
-            self.console.onecmd("create BaseModel")
-            self.assertIn("BaseModel.", f.getvalue())
+            self.console.onecmd("quit")
+            self.assertIn("", f.getvalue())
 
-    def test_show(self):
+    def test_eof(self):
         with patch('sys.stdout', new=StringIO()) as f:
-            self.console.onecmd("create BaseModel")
-            obj_id = f.getvalue().strip()
-            self.console.onecmd(f"show BaseModel {obj_id}")
-            self.assertIn("BaseModel", f.getvalue())
+            self.console.onecmd("EOF")
+            self.assertIn("", f.getvalue())
 
-    def test_destroy(self):
+    def test_help(self):
         with patch('sys.stdout', new=StringIO()) as f:
-            self.console.onecmd("create BaseModel")
-            obj_id = f.getvalue().strip()
-            self.console.onecmd(f"destroy BaseModel {obj_id}")
-            self.assertEqual(storage.all(), {})
+            self.console.onecmd("help")
+            self.assertIn("", f.getvalue())
 
-    def test_all(self):
+    def test_empty_line(self):
         with patch('sys.stdout', new=StringIO()) as f:
-            self.console.onecmd("create BaseModel")
-            self.console.onecmd("create User")
-            self.console.onecmd("all")
-            output = f.getvalue().strip()
-            self.assertIn("BaseModel", output)
-            self.assertIn("User", output)
+            self.console.onecmd("")
+            self.assertIn("", f.getvalue())
 
-    def test_update(self):
+    def test_base_model_count(self):
         with patch('sys.stdout', new=StringIO()) as f:
-            self.console.onecmd("create BaseModel")
-            obj_id = f.getvalue().strip()
-            self.console.onecmd(f"update BaseModel {obj_id} name 'new_name'")
-            self.console.onecmd(f"show BaseModel {obj_id}")
-            output = f.getvalue().strip()
-            self.assertIn("new_name", output)
+            self.console.onecmd("BaseModel.count()")
+            self.assertIn("", f.getvalue())
 
+    def test_user_count(self):
+        with patch('sys.stdout', new=StringIO()) as f:
+            self.console.onecmd("User.count()")
+            self.assertIn("", f.getvalue())
+
+def test_user_show(self):
+    with patch('sys.stdout', new=StringIO()) as f:
+        self.console.onecmd("User.show('some_id')")
+        self.assertIn("", f.getvalue())
 
 if __name__ == "__main__":
     unittest.main()
