@@ -4,6 +4,7 @@ User Module
 """
 
 from models.base_model import BaseModel
+import models
 
 
 class User(BaseModel):
@@ -12,3 +13,8 @@ class User(BaseModel):
     password = ""
     first_name = ""
     last_name = ""
+
+    def save(self):
+        """Save the current instance to the storage"""
+        models.storage.new(self)
+        models.storage.save()
