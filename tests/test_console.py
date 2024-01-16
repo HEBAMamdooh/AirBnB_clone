@@ -6,9 +6,7 @@ import unittest
 from io import StringIO
 from unittest.mock import patch
 from console import HBNBCommand
-import models
-
-storage = models.storage
+from models import storage
 
 class TestHBNBCommand(unittest.TestCase):
 
@@ -154,8 +152,6 @@ class TestHBNBCommand(unittest.TestCase):
         expected_output = "[State] (0000-0000-0000-0000) {}\n[State] (0000-0000-0000-0001) {}"
         self.assert_stdout(expected_output, self.console.onecmd, "State.all()")
 
-    # Add similar tests for other classes...
-
     def test_BaseModel_count(self):
         storage.reload()
         storage.new(storage.classes['BaseModel']())
@@ -179,6 +175,81 @@ class TestHBNBCommand(unittest.TestCase):
         storage.save()
         expected_output = "2"
         self.assert_stdout(expected_output, self.console.onecmd, "State.count()")
+
+class TestConsoleBase(unittest.TestCase):
+    def setUp(self):
+        self.console = HBNBCommand()
+
+    def tearDown(self):
+        pass
+
+    def assert_stdout(self, expected_output, function, *args, **kwargs):
+        with patch('sys.stdout', new_callable=StringIO) as mock_stdout:
+            function(*args, **kwargs)
+            actual_output = mock_stdout.getvalue().strip()
+            self.assertEqual(actual_output, expected_output)
+
+class TestConsoleUpdateCommands(TestConsoleBase):
+    def test_BaseModel_update(self):
+        storage.reload()
+        new_instance = storage.classes['BaseModel']()
+        storage.new(new_instance)
+        storage.save()
+        expected_output = ""
+        self.assert_stdout(expected_output, self.console.onecmd,
+                           "BaseModel.update('{}', 'attribute_name', 'string_value')")
+
+    def test_User_update(self):
+        storage.reload()
+        new_instance = storage.classes['User']()
+        storage.new(new_instance)
+        storage.save()
+        expected_output = ""
+        self.assert_stdout(expected_output, self.console.onecmd,
+                           "User.update('{}', 'attribute_name', 'string_value')")
+
+    def test_State_update(self):
+        storage.reload()
+        new_instance = storage.classes['State']()
+        storage.new(new_instance)
+        storage.save()
+        expected_output = ""
+        self.assert_stdout(expected_output, self.console.onecmd,
+                           "State.update('{}', 'attribute_name', 'string_value')")
+
+    # Add similar tests for other classes...
+
+    def test_BaseModel_update_dict(self):
+        storage.reload()
+        new_instance = storage.classes['BaseModel']()
+        storage.new(new_instance)
+        storage.save()
+        expected_output = ""
+        self.assert_stdout(expected_output, self.console.onecmd,
+                           "BaseModel.update('{}', {{'attribute_name': 'string_value'}})".format(new_instance.id))
+
+    def test_User_update_dict(self):
+        storage.reload()
+        new_instance = storage.classes['User']()
+        storage.new(new_instance)
+        storage.save()
+        expected_output = ""
+        self.assert_stdout(expected_output, self.console.onecmd,
+                           "User.update('{}', {{'attribute_name': 'string_value'}})".format(new_instance.id))
+
+    def test_State_update_dict(self):
+        storage.reload()
+        new_instance = storage.classes['State']()
+        storage.new(new_instance)
+        storage.save()
+        expected_output = ""
+        self.assert_stdout(expected_output, self.console.onecmd,
+                           "State.update('{}', {{'attribute_name': 'string_value'}})".format(new_instance.id))
+
+    # Add similar tests for other classes...
+
+# ... (remaining code)
+
 
 if __name__ == '__main__':
     unittest.main()
