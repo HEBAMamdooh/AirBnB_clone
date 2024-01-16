@@ -13,6 +13,26 @@ class TestHBNBCommand(unittest.TestCase):
     def setUp(self):
         self.hbnb_cmd = HBNBCommand()
 
+    def test_do_EOF_command(self):
+        with patch('sys.stdout', new=StringIO()) as f:
+            with self.assertRaises(SystemExit):
+                self.hbnb_cmd.onecmd("EOF")
+            output = f.getvalue().strip()
+            self.assertTrue("exiting..." in output)
+
+    def test_do_quit_command(self):
+        with patch('sys.stdout', new=StringIO()) as f:
+            with self.assertRaises(SystemExit):
+                self.hbnb_cmd.onecmd("quit")
+            output = f.getvalue().strip()
+            self.assertTrue("exiting..." in output)
+
+    def test_emptyline_method(self):
+        with patch('sys.stdout', new=StringIO()) as f:
+            self.hbnb_cmd.onecmd("")
+            output = f.getvalue().strip()
+            self.assertTrue(output == "")
+
     def test_create_command(self):
         with patch('sys.stdout', new=StringIO()) as f:
             self.hbnb_cmd.onecmd("create BaseModel")
