@@ -33,6 +33,41 @@ class TestHBNBCommand(unittest.TestCase):
             output = f.getvalue().strip()
             self.assertTrue(output == "")
 
+    def test_check_for_braces(self):
+        # Test when braces are present
+        result = self.hbnb_cmd.check_for_braces(
+            "some_command({key: 'value'})", "{", "}")
+        self.assertEqual(result, (13, 28))
+
+        # Test when braces are not present
+        result = self.hbnb_cmd.check_for_braces(
+            "some_command(key='value')", "{", "}")
+        self.assertEqual(result, (False, False))
+
+    def test_get_list_of_args(self):
+        # Test case with all arguments
+        command = "User.update('123', 'name', 'John')"
+        result = self.hbnb_cmd.get_list_of_args(command)
+        self.assertEqual(result, ('User', 'update', '123', 'name', 'John'))
+
+        # Test case without optional arguments
+        command = "User.update('123', 'name', 'John')"
+        result = self.hbnb_cmd.get_list_of_args(command)
+        self.assertEqual(result, ('User', 'update', '123', 'name', 'John'))
+
+    def test_default_method(self):
+        with patch('sys.stdout', new=StringIO()) as f:
+            # Test update command
+            self.hbnb_cmd.default("BaseModel.update('123', 'name', 'John')")
+            output = f.getvalue().strip()
+            self.assertTrue("** no instance found **" in output)
+
+        with patch('sys.stdout', new=StringIO()) as f:
+            # Test unknown syntax
+            self.hbnb_cmd.default("InvalidSyntax")
+            output = f.getvalue().strip()
+            self.assertTrue("*** Unknown syntax: InvalidSyntax" in output)
+
     def test_create_command(self):
         with patch('sys.stdout', new=StringIO()) as f:
             self.hbnb_cmd.onecmd("create BaseModel")
