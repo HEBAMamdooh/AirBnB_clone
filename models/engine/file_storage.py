@@ -12,29 +12,34 @@ class FileStorage:
 
     def all(self):
         """Returns the dictionary __objects"""
-        return FileStorage.__objects
+        return self.__objects
 
     def new(self, obj):
         """Sets in __objects the obj with key <obj class name>.id"""
-        key = "{}.{}".format(type(obj).__name__, obj.id)
-        FileStorage.__objects[key] = obj
+        dict_attrs = obj.to_dict()
+        new_key = "{}.{}".format(dict_attrs["__class__"], dict_attrs["id"])
+        self.__objects[new_key] = obj
 
     def save(self):
         """Serializes __objects to the JSON file (path: __file_path)"""
-        serialized_objects = {}
-        for key, value in FileStorage.__objects.items():
-            serialized_objects[key] = value.to_dict()
-        with open(FileStorage.__file_path, mode="w", encoding="utf-8") as f:
-            json.dump(serialized_objects, f)
+        json_obj = {}
+        for key in self.__objects:
+            json_obj[key] = self.__objects[key].to_dict()
+        with open(self.__file_path, 'w') as file:
+            json.dump(json_obj, file, indent=2)
 
     def reload(self):
         """Deserializes the JSON file to __objects"""
         try:
-            with open(FileStorage.__file_path, mode="r", encoding="utf-8") as f:
-                loaded_objects = json.load(f)
-            for key, value in loaded_objects.items():
-                class_name = key.split('.')[0]
-                obj = eval(class_name)(**value)
-                FileStorage.__objects[key] = obj
+            with open(FileStorage.__file_path, mode="r") as file:
+                content = file.read()
+                dict_from_file = {}
+                if content != "":
+                    dict_from_file = json.loads(content)
+                for file_key, dict_obj in dict_from_file.items():
+                    if file_key not in FileStorage.__objects.keys():
+                        className = dict_obj["__class__"]
+                        newInst = eval("{}(**dict_obj)".format(className))
+                        self.new(newInst)
         except FileNotFoundError:
             pass
