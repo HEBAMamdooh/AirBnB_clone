@@ -161,5 +161,40 @@ class TestHBNBCommand(unittest.TestCase):
         result = self.hbnb_cmd.same_type_as_attr('value', object)
         self.assertFalse(result)
 
+    def test_convert_new_val_int(self):
+        # Test case with a valid integer
+        result = self.hbnb_cmd.convert_new_val('42')
+        self.assertEqual(result, 42)
+
+        # Test case with an invalid integer
+        result = self.hbnb_cmd.convert_new_val('not_an_integer')
+        self.assertEqual(result, 'not_an_integer')
+
+    def test_convert_new_val_float(self):
+        # Test case with a valid float
+        result = self.hbnb_cmd.convert_new_val('3.14')
+        self.assertEqual(result, 3.14)
+
+        # Test case with an invalid float
+        result = self.hbnb_cmd.convert_new_val('not_a_float')
+        self.assertEqual(result, 'not_a_float')
+
+    def test_convert_new_val_list(self):
+        # Test case with a valid list
+        result = self.hbnb_cmd.convert_new_val('[1, 2, 3]')
+        self.assertEqual(result, [1, 2, 3])
+
+        # Test case with an invalid list
+        result = self.hbnb_cmd.convert_new_val('not_a_list')
+        self.assertEqual(result, 'not_a_list')
+
+    def test_convert_new_val_other_types(self):
+        # Test case with other types (should return the input unchanged)
+        result = self.hbnb_cmd.convert_new_val('hello')
+        self.assertEqual(result, 'hello')
+
+        result = self.hbnb_cmd.convert_new_val('{"key": "value"}')
+        self.assertEqual(result, '{"key": "value"}')
+
 if __name__ == '__main__':
     unittest.main()
