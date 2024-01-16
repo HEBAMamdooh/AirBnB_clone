@@ -18,3 +18,7 @@ class User(BaseModel):
         """Save the current instance to the storage"""
         models.storage.new(self)
         models.storage.save()
+
+    def __init__(self, *args, **kwargs):
+        """ Init """
+        super().__init__(*args, **kwargs)
