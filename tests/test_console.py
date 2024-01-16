@@ -120,6 +120,46 @@ class TestHBNBCommand(unittest.TestCase):
             output = f.getvalue().strip()
             self.assertTrue("NewName" in output)
 
+    def test_same_type_as_attr_list(self):
+        # Test case with a valid list
+        result = self.hbnb_cmd.same_type_as_attr('[1, 2, 3]', list)
+        self.assertEqual(result, [1, 2, 3])
+
+        # Test case with a list containing non-string elements
+        result = self.hbnb_cmd.same_type_as_attr('[1, "2", 3]', list)
+        self.assertFalse(result)
+
+        # Test case with invalid list syntax
+        result = self.hbnb_cmd.same_type_as_attr('not_a_list', list)
+        self.assertFalse(result)
+
+    def test_same_type_as_attr_str(self):
+        # Test case with a valid string
+        result = self.hbnb_cmd.same_type_as_attr('hello', str)
+        self.assertEqual(result, 'hello')
+
+    def test_same_type_as_attr_int(self):
+        # Test case with a valid integer
+        result = self.hbnb_cmd.same_type_as_attr('42', int)
+        self.assertEqual(result, 42)
+
+        # Test case with an invalid integer
+        result = self.hbnb_cmd.same_type_as_attr('not_an_integer', int)
+        self.assertFalse(result)
+
+    def test_same_type_as_attr_float(self):
+        # Test case with a valid float
+        result = self.hbnb_cmd.same_type_as_attr('3.14', float)
+        self.assertEqual(result, 3.14)
+
+        # Test case with an invalid float
+        result = self.hbnb_cmd.same_type_as_attr('not_a_float', float)
+        self.assertFalse(result)
+
+    def test_same_type_as_attr_invalid_type(self):
+        # Test case with an invalid type
+        result = self.hbnb_cmd.same_type_as_attr('value', object)
+        self.assertFalse(result)
 
 if __name__ == '__main__':
     unittest.main()
