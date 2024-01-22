@@ -1,12 +1,15 @@
 header {
-    color: white;
+    background-color: white;
     height: 70px;
     width: 100%;
     border-bottom: 1px solid #CCCCCC;
-    display: flex;
-    align-items: center;
+    position: relative;
 }
 
-img {
-    margin-left: 20px;
+header div.logo {
+    position: absolute;
+    width: 142px;
+    height: 60px;
+    background-image: url(../images/logo.png);
+    left: 20px;
 }
