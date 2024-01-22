@@ -4,7 +4,9 @@ header {
     width: 100%;
     border-bottom: 1px solid #CCCCCC;
     display: flex;
-    align-items: center;}
+    align-items: center;
+}
+
 img {
     margin-left: 20px;
 }

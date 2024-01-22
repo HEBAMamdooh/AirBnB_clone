@@ -35,6 +35,40 @@
     margin: 2px 20px;
 }
 
+
+.popover {
+    display: none;
+    background-color: #FAFAFA;
+    border: 1px solid #DDDDDD;
+    border-radius: 4px;
+    top: 100%;
+    position: absolute;
+    left: 0;
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 20px;
+    list-style: none;
+}
+
+.locations:hover .popover,
+.amenities:hover .popover {
+    display: block;
+    cursor: pointer;
+}
+
+.popover li {
+    margin: 10px 0px 5px 0px;
+    list-style: none;
+    padding-left: 20px;
+    display: block;
+    grid-row-gap: 4px;
+}
+
+.popover h2 {
+    font-size: 16px;
+}
+
 button {
     font-size: 18px;
     background-color: #FF5A5F;
